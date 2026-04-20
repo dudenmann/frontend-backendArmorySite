@@ -1,0 +1,5 @@
+﻿Smoke check run at: 2026-04-19 23:06:31
+Task 2 API: OK, products count = 30
+Task 4 backend: OK, products count = 30
+Task 4 frontend: OK, status = 200
+Task 5 Swagger: OK, status = 200

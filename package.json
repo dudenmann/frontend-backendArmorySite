@@ -1,0 +1,23 @@
+{
+  "name": "codex-111",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "task2": "node practice-2-medieval-api/server.js",
+    "task4:api": "node practice-4-fullstack/backend/server.js",
+    "task4:web": "node practice-4-fullstack/frontend/server.js",
+    "task5": "node practice-5-swagger/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "pdf-parse": "^2.4.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
