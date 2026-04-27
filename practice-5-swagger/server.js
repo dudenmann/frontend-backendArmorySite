@@ -16,6 +16,10 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.send("API работает. Используйте /api/products");
+});
+
 let products = cloneProducts();
 
 const isString = (value) => typeof value === "string" && value.trim().length > 0;

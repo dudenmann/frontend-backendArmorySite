@@ -1,5 +1,18 @@
 const { useEffect, useMemo, useState } = React;
 
+const EMPTY_FORM = {
+  name: "",
+  category: "",
+  description: "",
+  era: "",
+  origin: "",
+  material: "",
+  price: "",
+  stock: "",
+  rating: "",
+  image: ""
+};
+
 function formatPrice(value) {
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
@@ -27,6 +40,10 @@ function App() {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [createError, setCreateError] = useState("");
+  const [createSuccess, setCreateSuccess] = useState("");
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -46,6 +63,59 @@ function App() {
       setError(`Не удалось загрузить товары: ${e.message}`);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function onFormChange(event) {
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function onCreateProduct(event) {
+    event.preventDefault();
+    setCreateError("");
+    setCreateSuccess("");
+    setCreating(true);
+
+    const payload = {
+      name: form.name.trim(),
+      category: form.category.trim(),
+      description: form.description.trim(),
+      era: form.era.trim(),
+      origin: form.origin.trim(),
+      material: form.material.trim(),
+      price: Number(form.price),
+      stock: Number(form.stock)
+    };
+
+    if (form.rating.trim() !== "") {
+      payload.rating = Number(form.rating);
+    }
+    if (form.image.trim() !== "") {
+      payload.image = form.image.trim();
+    }
+
+    try {
+      const res = await fetch("http://localhost:3000/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.message || `HTTP ${res.status}`);
+      }
+
+      setProducts((prev) => [...prev, data]);
+      setForm(EMPTY_FORM);
+      setCreateSuccess("Товар успешно добавлен.");
+    } catch (e) {
+      setCreateError(`Ошибка добавления: ${e.message}`);
+    } finally {
+      setCreating(false);
     }
   }
 
@@ -96,6 +166,99 @@ function App() {
             ))}
           </select>
         </div>
+
+        <form className="add-form" onSubmit={onCreateProduct}>
+          <p className="add-form__title">Добавить товар</p>
+          <div className="add-form__grid">
+            <input
+              name="name"
+              value={form.name}
+              onChange={onFormChange}
+              placeholder="Название"
+              required
+            />
+            <input
+              name="category"
+              value={form.category}
+              onChange={onFormChange}
+              placeholder="Категория"
+              required
+            />
+            <input
+              name="era"
+              value={form.era}
+              onChange={onFormChange}
+              placeholder="Эпоха"
+              required
+            />
+            <input
+              name="origin"
+              value={form.origin}
+              onChange={onFormChange}
+              placeholder="Регион"
+              required
+            />
+            <input
+              name="material"
+              value={form.material}
+              onChange={onFormChange}
+              placeholder="Материал"
+              required
+            />
+            <input
+              name="image"
+              value={form.image}
+              onChange={onFormChange}
+              placeholder="Путь к изображению (необязательно)"
+            />
+            <input
+              name="price"
+              type="number"
+              min="0"
+              step="1"
+              value={form.price}
+              onChange={onFormChange}
+              placeholder="Цена"
+              required
+            />
+            <input
+              name="stock"
+              type="number"
+              min="0"
+              step="1"
+              value={form.stock}
+              onChange={onFormChange}
+              placeholder="Количество на складе"
+              required
+            />
+            <input
+              name="rating"
+              type="number"
+              min="0"
+              max="5"
+              step="0.1"
+              value={form.rating}
+              onChange={onFormChange}
+              placeholder="Рейтинг (0-5, необязательно)"
+            />
+            <textarea
+              className="add-form__full"
+              name="description"
+              value={form.description}
+              onChange={onFormChange}
+              placeholder="Описание товара"
+              rows="3"
+              required
+            />
+          </div>
+          <div className="add-form__actions">
+            <button type="submit" disabled={creating}>
+              {creating ? "Сохранение..." : "Добавить товар"}
+            </button>
+            {createSuccess && <span className="add-form__success">{createSuccess}</span>}
+          </div>
+          {createError && <p className="error">{createError}</p>}
+        </form>
       </header>
 
       {loading && <p className="info">Загрузка каталога...</p>}
